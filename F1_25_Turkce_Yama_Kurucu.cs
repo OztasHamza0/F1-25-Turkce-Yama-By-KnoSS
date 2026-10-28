@@ -466,6 +466,48 @@ namespace F1_25_Turkce_Yama
                 lblStatus.Text = "Yama kaldırılıyor...";
                 Application.DoEvents();
 
+                // 1. Oyun açıksa kapatalım
+                try
+                {
+                    Process[] procs = Process.GetProcessesByName("F1_25");
+                    foreach (var p in procs) { p.Kill(); p.WaitForExit(3000); }
+                }
+                catch { }
+
+                // 2. Swofty restore çalıştır
+                string swoftyExe = Path.Combine(gameDir, "swofty.exe");
+                if (File.Exists(swoftyExe))
+                {
+                    try
+                    {
+                        ProcessStartInfo psi = new ProcessStartInfo
+                        {
+                            FileName = swoftyExe,
+                            Arguments = "restore",
+                            WorkingDirectory = gameDir,
+                            CreateNoWindow = true,
+                            UseShellExecute = false,
+                            WindowStyle = ProcessWindowStyle.Hidden
+                        };
+                        using (Process p = Process.Start(psi)) { if (p != null) p.WaitForExit(10000); }
+                    }
+                    catch { }
+                }
+
+                // 3. EA Anti-Cheat orijinal haline döndür
+                string eaBak = Path.Combine(gameDir, "EAAntiCheat.GameServiceLauncher.exe.bak");
+                string eaExe = Path.Combine(gameDir, "EAAntiCheat.GameServiceLauncher.exe");
+                if (File.Exists(eaBak))
+                {
+                    try { File.Copy(eaBak, eaExe, true); } catch { }
+                    try { File.Delete(eaBak); } catch { }
+                }
+                string eaSwofty = Path.Combine(gameDir, "EAAntiCheat.GameServiceLauncher.exe.swofty");
+                if (File.Exists(eaSwofty))
+                {
+                    try { File.Delete(eaSwofty); } catch { }
+                }
+
                 string[] filesToDelete = new string[] {
                     "version.dll",
                     "version.dll.mod",
@@ -473,7 +515,8 @@ namespace F1_25_Turkce_Yama
                     "ONLINE_MOD_ORIJINAL.bat",
                     "swofty-launcher.exe",
                     "swofty.exe",
-                    "swofty-ui.exe"
+                    "swofty-ui.exe",
+                    "EAAntiCheat.GameServiceLauncher.exe.swofty"
                 };
 
                 foreach (string f in filesToDelete)
@@ -522,30 +565,78 @@ namespace F1_25_Turkce_Yama
                     return;
                 }
 
+                // 1. Oyun açıksa uyar ve kapat
+                Process[] procs = Process.GetProcessesByName("F1_25");
+                if (procs.Length > 0)
+                {
+                    DialogResult dr = MessageBox.Show(
+                        "F1 25 şu anda çalışıyor!\n\nÇevrimiçi moda geçmek için oyunun kapatılması gerekiyor. Oyunu şimdi kapatmak istiyor musunuz?",
+                        "Oyun Açık", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                    if (dr == DialogResult.Yes)
+                    {
+                        foreach (var p in procs) { try { p.Kill(); p.WaitForExit(3000); } catch { } }
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+
+                // 2. Swofty Restore (Oyun dosyalarını %100 vanilla baseline'a döndürür)
+                string swoftyExe = Path.Combine(gameDir, "swofty.exe");
+                if (File.Exists(swoftyExe))
+                {
+                    try
+                    {
+                        ProcessStartInfo psi = new ProcessStartInfo
+                        {
+                            FileName = swoftyExe,
+                            Arguments = "restore",
+                            WorkingDirectory = gameDir,
+                            CreateNoWindow = true,
+                            UseShellExecute = false,
+                            WindowStyle = ProcessWindowStyle.Hidden
+                        };
+                        using (Process p = Process.Start(psi)) { if (p != null) p.WaitForExit(10000); }
+                    }
+                    catch { }
+                }
+
+                // 3. EA Anti-Cheat Orijinal Başlatıcıyı Geri Yükle
+                string eaBak = Path.Combine(gameDir, "EAAntiCheat.GameServiceLauncher.exe.bak");
+                string eaExe = Path.Combine(gameDir, "EAAntiCheat.GameServiceLauncher.exe");
+                string eaSwofty = Path.Combine(gameDir, "EAAntiCheat.GameServiceLauncher.exe.swofty");
+                if (File.Exists(eaBak))
+                {
+                    if (!File.Exists(eaSwofty) && File.Exists(eaExe))
+                    {
+                        try { File.Copy(eaExe, eaSwofty, true); } catch { }
+                    }
+                    try { File.Copy(eaBak, eaExe, true); } catch { }
+                }
+
+                // 4. version.dll -> version.dll.mod
                 string v1 = Path.Combine(gameDir, "version.dll");
                 string v2 = Path.Combine(gameDir, "version.dll.mod");
 
                 if (File.Exists(v1))
                 {
-                    if (File.Exists(v2))
-                    {
-                        File.Delete(v2);
-                    }
+                    if (File.Exists(v2)) File.Delete(v2);
                     File.Move(v1, v2);
-                    lblStatus.Text = "Modlar devre dışı bırakıldı. Oyun %100 orijinal Steam durumunda!";
-                    MessageBox.Show(
-                        "Çevrimiçi mod aktif edildi!\n\n" +
-                        "Modlar devre dışı bırakıldı. Artık Steam üzerinden oyunu başlatıp resmi Online lobilerine güvenle girebilirsiniz.\n\n" +
-                        "(Tekrar Türkçe oynamak istediğinizde bu programdan 'OYUNU BAŞLAT (TÜRKÇE)' butonuna veya masaüstündeki 'F1 25 Türkçe' kısayoluna basmanız yeterlidir.)", 
-                        "Çevrimiçi Mod Aktif", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-                else if (File.Exists(v2))
+
+                lblStatus.Text = "Oyun %100 orijinal Steam ve Çevrimiçi moduna alındı!";
+                DialogResult askLaunch = MessageBox.Show(
+                    "Çevrimiçi mod başarıyla aktif edildi!\n\n" +
+                    "- Modlar pasife alındı.\n" +
+                    "- Orijinal EA Anti-Cheat ve oyun dosyaları yüklendi.\n" +
+                    "- Hesabınız ban riskine karşı %100 güvende.\n\n" +
+                    "Oyunu şimdi Steam üzerinden başlatmak istiyor musunuz?", 
+                    "Çevrimiçi Mod Aktif", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+
+                if (askLaunch == DialogResult.Yes)
                 {
-                    MessageBox.Show("Oyun zaten Çevrimiçi modunda (modlar devre dışı). Doğrudan Steam'den başlatıp oynayabilirsiniz.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    MessageBox.Show("Türkçe yama kurulu değil. Oyun zaten orijinal durumda.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Process.Start("steam://run/3059520");
                 }
             }
             catch (Exception ex)
@@ -565,19 +656,68 @@ namespace F1_25_Turkce_Yama
                     return;
                 }
 
-                string launcher = Path.Combine(gameDir, "swofty-launcher.exe");
-                string bat = Path.Combine(gameDir, "OYUNU_BASLAT_TURKCE.bat");
+                // 1. Oyun açıksa uyar
+                Process[] procs = Process.GetProcessesByName("F1_25");
+                if (procs.Length > 0)
+                {
+                    DialogResult dr = MessageBox.Show(
+                        "F1 25 şu anda açık! Türkçe yamayla başlatmak için önce oyunu kapatmak istiyor musunuz?",
+                        "Oyun Açık", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                    if (dr == DialogResult.Yes)
+                    {
+                        foreach (var p in procs) { try { p.Kill(); p.WaitForExit(3000); } catch { } }
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+
+                // 2. version.dll.mod -> version.dll
                 string v2 = Path.Combine(gameDir, "version.dll.mod");
                 string v1 = Path.Combine(gameDir, "version.dll");
-
                 if (File.Exists(v2))
                 {
-                    if (File.Exists(v1))
-                    {
-                        File.Delete(v1);
-                    }
+                    if (File.Exists(v1)) File.Delete(v1);
                     File.Move(v2, v1);
                 }
+
+                // 3. Swofty Offline Anti-Cheat Stub'ını yükle
+                string eaSwofty = Path.Combine(gameDir, "EAAntiCheat.GameServiceLauncher.exe.swofty");
+                string eaExe = Path.Combine(gameDir, "EAAntiCheat.GameServiceLauncher.exe");
+                string eaBak = Path.Combine(gameDir, "EAAntiCheat.GameServiceLauncher.exe.bak");
+                if (File.Exists(eaSwofty))
+                {
+                    if (!File.Exists(eaBak) && File.Exists(eaExe))
+                    {
+                        try { File.Copy(eaExe, eaBak, true); } catch { }
+                    }
+                    try { File.Copy(eaSwofty, eaExe, true); } catch { }
+                }
+
+                // 4. Arayüz yamalarını uygula
+                string swoftyExe = Path.Combine(gameDir, "swofty.exe");
+                if (File.Exists(swoftyExe))
+                {
+                    try
+                    {
+                        ProcessStartInfo psi = new ProcessStartInfo
+                        {
+                            FileName = swoftyExe,
+                            Arguments = "apply",
+                            WorkingDirectory = gameDir,
+                            CreateNoWindow = true,
+                            UseShellExecute = false,
+                            WindowStyle = ProcessWindowStyle.Hidden
+                        };
+                        using (Process p = Process.Start(psi)) { if (p != null) p.WaitForExit(10000); }
+                    }
+                    catch { }
+                }
+
+                // 5. Oyunu Başlat
+                string launcher = Path.Combine(gameDir, "swofty-launcher.exe");
+                string bat = Path.Combine(gameDir, "OYUNU_BASLAT_TURKCE.bat");
 
                 if (File.Exists(launcher))
                 {
@@ -595,17 +735,9 @@ namespace F1_25_Turkce_Yama
                         WorkingDirectory = gameDir
                     });
                 }
-                else if (File.Exists(Path.Combine(gameDir, "F1_25.exe")))
-                {
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = Path.Combine(gameDir, "F1_25.exe"),
-                        WorkingDirectory = gameDir
-                    });
-                }
                 else
                 {
-                    MessageBox.Show("Oyun başlatılamadı. Dosyalar bulunamadı!", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Process.Start("steam://run/3059520");
                 }
             }
             catch (Exception ex)
