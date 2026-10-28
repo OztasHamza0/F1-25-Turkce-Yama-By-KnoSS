@@ -563,6 +563,10 @@ namespace F1_25_Turkce_Yama
                 sc2.TargetPath = Path.Combine(gameDir, "ONLINE_MOD_ORIJINAL.bat");
                 sc2.WorkingDirectory = gameDir;
                 sc2.Description = "F1 25 Resmi Online Multiplayer Geçiş";
+                if (File.Exists(Path.Combine(gameDir, "F1_25.exe")))
+                {
+                    sc2.IconLocation = Path.Combine(gameDir, "F1_25.exe") + ",0";
+                }
                 sc2.Save();
             }
             catch { }
