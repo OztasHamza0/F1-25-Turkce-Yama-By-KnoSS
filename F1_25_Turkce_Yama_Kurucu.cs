@@ -23,6 +23,8 @@ namespace F1_25_Turkce_Yama
         private Label lblTitle;
         private Label lblSubtitle;
         private Label lblInfo;
+        private CheckBox chkOpenGitHub;
+        private LinkLabel linkGitHub;
 
         public InstallerForm()
         {
@@ -33,7 +35,7 @@ namespace F1_25_Turkce_Yama
         private void InitializeComponent()
         {
             this.Text = "F1 25 Türkçe Yama - Kurulum Aracı v1.0";
-            this.Size = new Size(680, 540);
+            this.Size = new Size(680, 560);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -48,6 +50,20 @@ namespace F1_25_Turkce_Yama
             lblTitle.Location = new Point(25, 20);
             lblTitle.AutoSize = true;
             this.Controls.Add(lblTitle);
+
+            // GitHub Star Link in Header
+            linkGitHub = new LinkLabel();
+            linkGitHub.Text = "★ GitHub Projesi & Yıldız Ver";
+            linkGitHub.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            linkGitHub.LinkColor = Color.FromArgb(255, 215, 0); // Gold
+            linkGitHub.ActiveLinkColor = Color.White;
+            linkGitHub.Location = new Point(440, 24);
+            linkGitHub.AutoSize = true;
+            linkGitHub.Cursor = Cursors.Hand;
+            linkGitHub.LinkClicked += (s, e) => {
+                try { Process.Start("https://github.com/OztasHamza0/F1-25-Turkce-Yama-By-KnoSS"); } catch { }
+            };
+            this.Controls.Add(linkGitHub);
 
             // Subtitle
             lblSubtitle = new Label();
@@ -111,7 +127,7 @@ namespace F1_25_Turkce_Yama
 
             // Progress Bar
             progressBar = new ProgressBar();
-            progressBar.Location = new Point(25, 295);
+            progressBar.Location = new Point(25, 290);
             progressBar.Size = new Size(615, 12);
             progressBar.Style = ProgressBarStyle.Continuous;
             this.Controls.Add(progressBar);
@@ -121,14 +137,24 @@ namespace F1_25_Turkce_Yama
             lblStatus.Text = "Hazır. Yamayı kurmak için aşağıdaki butona basınız.";
             lblStatus.Font = new Font("Segoe UI", 9f, FontStyle.Italic);
             lblStatus.ForeColor = Color.FromArgb(160, 215, 160);
-            lblStatus.Location = new Point(25, 315);
+            lblStatus.Location = new Point(25, 308);
             lblStatus.AutoSize = true;
             this.Controls.Add(lblStatus);
+
+            // CheckBox for Opening GitHub & Star Reminder
+            chkOpenGitHub = new CheckBox();
+            chkOpenGitHub.Text = "Kurulum tamamlandığında GitHub sayfasını aç (Projeyi beğendiyseniz ⭐ Yıldız verin!)";
+            chkOpenGitHub.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
+            chkOpenGitHub.ForeColor = Color.FromArgb(255, 215, 80);
+            chkOpenGitHub.Location = new Point(25, 330);
+            chkOpenGitHub.Size = new Size(615, 22);
+            chkOpenGitHub.Checked = true;
+            this.Controls.Add(chkOpenGitHub);
 
             // Action Buttons
             btnInstall = new Button();
             btnInstall.Text = "TÜRKÇE YAMAYI KUR";
-            btnInstall.Location = new Point(25, 350);
+            btnInstall.Location = new Point(25, 358);
             btnInstall.Size = new Size(300, 50);
             btnInstall.Font = new Font("Segoe UI", 12, FontStyle.Bold);
             btnInstall.BackColor = Color.FromArgb(225, 6, 0); // F1 Red
@@ -141,7 +167,7 @@ namespace F1_25_Turkce_Yama
 
             btnUninstall = new Button();
             btnUninstall.Text = "YAMAYI KALDIR";
-            btnUninstall.Location = new Point(340, 350);
+            btnUninstall.Location = new Point(340, 358);
             btnUninstall.Size = new Size(145, 50);
             btnUninstall.Font = new Font("Segoe UI", 10, FontStyle.Bold);
             btnUninstall.BackColor = Color.FromArgb(45, 45, 60);
@@ -153,10 +179,10 @@ namespace F1_25_Turkce_Yama
             this.Controls.Add(btnUninstall);
 
             btnOnlineMode = new Button();
-            btnOnlineMode.Text = "ONLINE MOD (VANILLA)";
-            btnOnlineMode.Location = new Point(495, 350);
+            btnOnlineMode.Text = "ÇEVRİMİÇİ MODA GEÇ";
+            btnOnlineMode.Location = new Point(495, 358);
             btnOnlineMode.Size = new Size(145, 50);
-            btnOnlineMode.Font = new Font("Segoe UI", 8.5f, FontStyle.Bold);
+            btnOnlineMode.Font = new Font("Segoe UI", 8.2f, FontStyle.Bold);
             btnOnlineMode.BackColor = Color.FromArgb(30, 60, 90);
             btnOnlineMode.ForeColor = Color.FromArgb(200, 230, 255);
             btnOnlineMode.FlatStyle = FlatStyle.Flat;
@@ -168,7 +194,7 @@ namespace F1_25_Turkce_Yama
             // Launch Button
             btnLaunch = new Button();
             btnLaunch.Text = "OYUNU BAŞLAT (TÜRKÇE)";
-            btnLaunch.Location = new Point(25, 415);
+            btnLaunch.Location = new Point(25, 418);
             btnLaunch.Size = new Size(615, 42);
             btnLaunch.Font = new Font("Segoe UI", 11, FontStyle.Bold);
             btnLaunch.BackColor = Color.FromArgb(16, 124, 65); // Green
@@ -179,14 +205,19 @@ namespace F1_25_Turkce_Yama
             btnLaunch.Click += BtnLaunch_Click;
             this.Controls.Add(btnLaunch);
 
-            // Footer
-            Label lblFooter = new Label();
-            lblFooter.Text = "F1 25 Topluluk Türkçe Yama Projesi v1.0 | Herhangi bir harici programa ihtiyaç duymaz.";
-            lblFooter.Font = new Font("Segoe UI", 8f);
-            lblFooter.ForeColor = Color.FromArgb(100, 100, 120);
-            lblFooter.Location = new Point(25, 472);
-            lblFooter.AutoSize = true;
-            this.Controls.Add(lblFooter);
+            // Footer with GitHub Link
+            LinkLabel lblFooterLink = new LinkLabel();
+            lblFooterLink.Text = "⭐ Proje ve Güncellemeler: github.com/OztasHamza0/F1-25-Turkce-Yama-By-KnoSS";
+            lblFooterLink.Font = new Font("Segoe UI", 8.8f, FontStyle.Regular);
+            lblFooterLink.LinkColor = Color.FromArgb(140, 190, 255);
+            lblFooterLink.ActiveLinkColor = Color.White;
+            lblFooterLink.Location = new Point(25, 478);
+            lblFooterLink.AutoSize = true;
+            lblFooterLink.Cursor = Cursors.Hand;
+            lblFooterLink.LinkClicked += (s, e) => {
+                try { Process.Start("https://github.com/OztasHamza0/F1-25-Turkce-Yama-By-KnoSS"); } catch { }
+            };
+            this.Controls.Add(lblFooterLink);
         }
 
         private void DetectGamePath()
@@ -336,6 +367,13 @@ namespace F1_25_Turkce_Yama
                     }
                 }
 
+                // Remove leftover version.dll.mod if exists
+                string leftoverMod = Path.Combine(gameDir, "version.dll.mod");
+                if (File.Exists(leftoverMod))
+                {
+                    try { File.Delete(leftoverMod); } catch { }
+                }
+
                 // Write Offline Consent
                 lblStatus.Text = "Güvenlik ve çevrimdışı profil ayarları yapılıyor...";
                 progressBar.Value = 85;
@@ -388,8 +426,18 @@ namespace F1_25_Turkce_Yama
                     "Masaüstünüze 2 adet kısayol eklendi:\n" +
                     "1. 'F1 25 Türkçe': Kariyer, My Team ve Braking Point modlarını %100 Türkçe açar.\n" +
                     "2. 'F1 25 Online (Orijinal)': Modları kapatıp Steam'den güvenle Online oynamanızı sağlar.\n\n" +
+                    "⭐ DESTEK: Projeyi beğendiyseniz GitHub sayfamıza Yıldız (Star) vererek destek olmayı unutmayın!\n\n" +
                     "İyi yarışlar dileriz!", 
                     "Kurulum Tamamlandı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                if (chkOpenGitHub != null && chkOpenGitHub.Checked)
+                {
+                    try
+                    {
+                        Process.Start("https://github.com/OztasHamza0/F1-25-Turkce-Yama-By-KnoSS");
+                    }
+                    catch { }
+                }
             }
             catch (Exception ex)
             {
@@ -465,66 +513,104 @@ namespace F1_25_Turkce_Yama
 
         private void BtnOnlineMode_Click(object sender, EventArgs e)
         {
-            string gameDir = txtGamePath.Text.Trim();
-            string v1 = Path.Combine(gameDir, "version.dll");
-            string v2 = Path.Combine(gameDir, "version.dll.mod");
+            try
+            {
+                string gameDir = txtGamePath.Text.Trim();
+                if (string.IsNullOrEmpty(gameDir) || !Directory.Exists(gameDir))
+                {
+                    MessageBox.Show("Lütfen geçerli bir F1 25 oyun klasörü seçin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-            if (File.Exists(v1))
-            {
-                File.Move(v1, v2);
-                lblStatus.Text = "Modlar devre dışı bırakıldı. Oyun %100 orijinal Steam durumunda!";
-                MessageBox.Show("Modlar devre dışı bırakıldı.\n\nArtık Steam üzerinden oyunu başlatıp resmi Online lobilerine güvenle girebilirsiniz!\n(Tekrar Türkçe oynamak istediğinizde 'F1 25 Türkçe' kısayolunu açmanız yeterlidir)", "Online Modu Aktif", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                string v1 = Path.Combine(gameDir, "version.dll");
+                string v2 = Path.Combine(gameDir, "version.dll.mod");
+
+                if (File.Exists(v1))
+                {
+                    if (File.Exists(v2))
+                    {
+                        File.Delete(v2);
+                    }
+                    File.Move(v1, v2);
+                    lblStatus.Text = "Modlar devre dışı bırakıldı. Oyun %100 orijinal Steam durumunda!";
+                    MessageBox.Show(
+                        "Çevrimiçi mod aktif edildi!\n\n" +
+                        "Modlar devre dışı bırakıldı. Artık Steam üzerinden oyunu başlatıp resmi Online lobilerine güvenle girebilirsiniz.\n\n" +
+                        "(Tekrar Türkçe oynamak istediğinizde bu programdan 'OYUNU BAŞLAT (TÜRKÇE)' butonuna veya masaüstündeki 'F1 25 Türkçe' kısayoluna basmanız yeterlidir.)", 
+                        "Çevrimiçi Mod Aktif", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else if (File.Exists(v2))
+                {
+                    MessageBox.Show("Oyun zaten Çevrimiçi modunda (modlar devre dışı). Doğrudan Steam'den başlatıp oynayabilirsiniz.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Türkçe yama kurulu değil. Oyun zaten orijinal durumda.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             }
-            else if (File.Exists(v2))
+            catch (Exception ex)
             {
-                MessageBox.Show("Oyun zaten Online modunda (modlar devre dışı). Doğrudan Steam'den başlatabilirsiniz.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            else
-            {
-                MessageBox.Show("Türkçe yama kurulu değil. Oyun zaten orijinal durumda.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Çevrimiçi moda geçerken bir hata oluştu:\n" + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void BtnLaunch_Click(object sender, EventArgs e)
         {
-            string gameDir = txtGamePath.Text.Trim();
-            string launcher = Path.Combine(gameDir, "swofty-launcher.exe");
-            string bat = Path.Combine(gameDir, "OYUNU_BASLAT_TURKCE.bat");
-            string v2 = Path.Combine(gameDir, "version.dll.mod");
-            string v1 = Path.Combine(gameDir, "version.dll");
+            try
+            {
+                string gameDir = txtGamePath.Text.Trim();
+                if (string.IsNullOrEmpty(gameDir) || !Directory.Exists(gameDir))
+                {
+                    MessageBox.Show("Lütfen geçerli bir F1 25 oyun klasörü seçin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-            if (File.Exists(v2) && !File.Exists(v1))
-            {
-                File.Move(v2, v1);
-            }
+                string launcher = Path.Combine(gameDir, "swofty-launcher.exe");
+                string bat = Path.Combine(gameDir, "OYUNU_BASLAT_TURKCE.bat");
+                string v2 = Path.Combine(gameDir, "version.dll.mod");
+                string v1 = Path.Combine(gameDir, "version.dll");
 
-            if (File.Exists(launcher))
-            {
-                Process.Start(new ProcessStartInfo
+                if (File.Exists(v2))
                 {
-                    FileName = launcher,
-                    WorkingDirectory = gameDir
-                });
-            }
-            else if (File.Exists(bat))
-            {
-                Process.Start(new ProcessStartInfo
+                    if (File.Exists(v1))
+                    {
+                        File.Delete(v1);
+                    }
+                    File.Move(v2, v1);
+                }
+
+                if (File.Exists(launcher))
                 {
-                    FileName = bat,
-                    WorkingDirectory = gameDir
-                });
-            }
-            else if (File.Exists(Path.Combine(gameDir, "F1_25.exe")))
-            {
-                Process.Start(new ProcessStartInfo
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = launcher,
+                        WorkingDirectory = gameDir
+                    });
+                }
+                else if (File.Exists(bat))
                 {
-                    FileName = Path.Combine(gameDir, "F1_25.exe"),
-                    WorkingDirectory = gameDir
-                });
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = bat,
+                        WorkingDirectory = gameDir
+                    });
+                }
+                else if (File.Exists(Path.Combine(gameDir, "F1_25.exe")))
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = Path.Combine(gameDir, "F1_25.exe"),
+                        WorkingDirectory = gameDir
+                    });
+                }
+                else
+                {
+                    MessageBox.Show("Oyun başlatılamadı. Dosyalar bulunamadı!", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Oyun başlatılamadı. Dosyalar bulunamadı!", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Oyun başlatılırken hata oluştu:\n" + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
